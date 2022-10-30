@@ -1,4 +1,4 @@
---require("Comment").setup()
+require("Comment").setup()
 require("user.toggleterm")
 require("user.options")
 require("user.keymaps")
