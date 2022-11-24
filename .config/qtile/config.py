@@ -43,14 +43,23 @@ keys = [
     Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key(
+        [mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"
+    ),
+    Key(
+        [mod, "shift"],
+        "l",
+        lazy.layout.shuffle_right(),
+        desc="Move window to the right",
+    ),
     Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
     Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    Key(
+        [mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"
+    ),
     Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
     Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
@@ -127,30 +136,132 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
+
+### BAR COLORS ##
+def init_colors():
+    return [
+        ["#282a36", "#282a36"],  # panel background
+        ["#434758", "#434758"],  # background for current screen tab
+        ["#ffffff", "#ffffff"],  # font color for group names
+        ["#ff5555", "#ff5555"],  # background color for layout widget
+        ["#000000", "#000000"],  # background for other screen tabs
+        ["#A77AC4", "#A77AC4"],  # dark green gradient for other screen tabs
+        ["#50fa7b", "#50fa7b"],  # background color for network widget
+        ["#7197E7", "#7197E7"],  # background color for pacman widget
+        ["#9AEDFE", "#9AEDFE"],  # backgroun dcolor for cmus widget
+        ["#000000", "#000000"],  # background color for clock clock widget
+        ["#434758", "#434758"],  # background color for systray widget
+    ]
+
+
+colors = init_colors()
+
 screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayout(
-                    ),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
+                # widget.CurrentLayout(),
+                widget.Sep(
+                    linewidth=0,
+                    height=20,
+                    padding=6,
+                    foreground=colors[2],
+                    background=colors[0],
+                ),
+                widget.GroupBox(
+                    fontsize=11,
+                    margin_y=0,
+                    margin_x=0,
+                    padding_y=5,
+                    padding_x=5,
+                    borderwidth=1,
+                    active=colors[2],
+                    inactive=colors[2],
+                    rounded=False,
+                    highlight_method="block",
+                    this_current_screen_border=colors[5],
+                    this_screen_border=colors[1],
+                    other_current_screen_border=colors[0],
+                    other_screen_border=colors[0],
+                    foreground=colors[2],
+                    background=colors[0],
+                ),
+                widget.Prompt(
+                    font="JetBrains Mono", foreground=colors[3], background=colors[0], fontsize=12,
+                ),
+                widget.WindowName(foreground=colors[2], background=colors[0], fontsize=12,),
                 widget.Chord(
                     chords_colors={
                         "launch": ("#ff0000", "#ffffff"),
                     },
                     name_transform=lambda name: name.upper(),
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-                # widget.StatusNotifier(),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.QuickExit(),
+                widget.TextBox(
+                    text="",
+                    font="Ubuntu Mono",
+                    background=colors[0],
+                    foreground=colors[7],
+                    padding=-18,
+                    fontsize=49,
+                ),
+                widget.Systray(
+                    interface="wlp1s0", foreground=colors[2], background=colors[7],
+                    padding=5
+                ),
+                widget.Sep(
+                    linewidth=0,
+                    height=20,
+                    padding=6,
+                    foreground=colors[2],
+                    background=colors[7],
+                ),
+                widget.TextBox(
+                    text="",
+                    font="Ubuntu Mono",
+                    background=colors[7],
+                    foreground=colors[5],
+                    padding=-18,
+                    fontsize=49,
+                ),
+                widget.Battery(fontsize=12,background=colors[5]),
+                widget.Sep(
+                    linewidth=0,
+                    height=20,
+                    padding=6,
+                    foreground=colors[2],
+                    background=colors[5],
+                ),
+                widget.TextBox(
+                    text="",
+                    font="Ubuntu Mono",
+                    background=colors[5],
+                    foreground=colors[7],
+                    padding=-18,
+                    fontsize=49,
+                ),
+                widget.Net(foreground=colors[2], fontsize=12,background=colors[7]),
+                widget.Sep(
+                    linewidth=0,
+                    height=20,
+                    padding=6,
+                    foreground=colors[2],
+                    background=colors[7],
+                ),
+                widget.TextBox(
+                    text="",
+                    font="Ubuntu Mono",
+                    background=colors[7],
+                    foreground=colors[5],
+                    padding=-18,
+                    fontsize=49,
+                ),
+                widget.Clock(
+                    format="%Y-%m-%d %a %I:%M %p",
+                    foreground=colors[2],fontsize=12,
+                    background=colors[5],
+                ),
             ],
-            24,
+            25,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
@@ -159,8 +270,15 @@ screens = [
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Drag(
+        [mod],
+        "Button1",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position(),
+    ),
+    Drag(
+        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+    ),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
